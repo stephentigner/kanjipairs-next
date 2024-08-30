@@ -1,6 +1,5 @@
-'use server'
-
 import { KanjiDataset, KanjiReading } from "@/interfaces/kanjipairs/kanjidata"
+import { kanjiData } from "./kanjidata";
 
 type ReadingsIndex = Map<string, Array<number>>;
 type NormalizationsIndex = Map<number, Map<string, string>>;
@@ -8,6 +7,8 @@ type KanjiItem = {
     kanjiIndex: number;
     selectedReading?: string;
 }
+
+const NUMBER_OF_CARDS = 40;
 
 //This normalizes all katakana to hiragana; if the string has hiragana, that remains untouched
 export const normalizeReading = (readingToNormalize: string) => {
@@ -105,14 +106,14 @@ const pickRandomReadings = (indexedReadings: ReadingsIndex, usedReadings: Array<
     return readingPicks;
 }
 
-export const initializeDataset = (kanjiData: KanjiDataset) => {
+const initializeDataset = (kanjiData: KanjiDataset) => {
     const { indexedReadings, readingNormalizations } = indexReadings(kanjiData);
     const prunedReadingIndex = pruneIndexedReadings(indexedReadings, 2);
 
     return {indexedReadings, readingNormalizations, prunedReadingIndex};
 }
 
-export const createKanjiSet = (
+const createKanjiSet = (
     indexedReadings: ReadingsIndex, readingNormalizations: NormalizationsIndex,
     numberOfKanji: number, kanjiSetSize: number
 ) => {
@@ -135,7 +136,7 @@ export const createKanjiSet = (
 
     //sanity check, for when we have an empty filtered set or a filtered set with only one kanji
     if (numberOfKanji > kanjiSetSize) {
-        return; //exit the function w/o creating any kanji
+        return []; //exit the function w/o creating any kanji
     }
 
 
@@ -212,4 +213,17 @@ export const createKanjiSet = (
     }
 
     return kanjiArray;
+}
+
+export const newCardSet = () => {
+    //TODO: Implement filters to limit set of kanji to be reviewed
+    const { indexedReadings, readingNormalizations, prunedReadingIndex} = initializeDataset(kanjiData);
+    const kanjiSet = createKanjiSet(indexedReadings, readingNormalizations, NUMBER_OF_CARDS, kanjiData.length);
+    return kanjiSet.map((item) => {
+        const kanjiCharacter = kanjiData[item.kanjiIndex];
+        return {
+            reading: item.selectedReading!, kanji: kanjiCharacter.literal,
+            active: true, flipped: false, triggerCooldown: false
+        };
+    });
 }

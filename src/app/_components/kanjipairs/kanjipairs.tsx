@@ -4,7 +4,8 @@ import { KanjiCardActionType, KanjiCardAction } from "@/interfaces/kanjipairs/ka
 import { useImmerReducer } from "use-immer";
 import { KanjiCardEntry } from "@/interfaces/kanjipairs/kanjicardentry";
 import KanjiCardGrid from "./kanjicardgrid";
-import { normalizeReading } from "@/lib/kanjipairs/kanjipairslib";
+import { newCardSet, normalizeReading } from "@/lib/kanjipairs/kanjipairslib";
+import { useEffect } from "react";
 
 type KanjiCardState = {
     cardData: Array<KanjiCardEntry>,
@@ -20,7 +21,7 @@ const testCardData = [
 ];
 
 const initialTestState: KanjiCardState = {
-    cardData: testCardData,
+    cardData: [],
     flippedCards: [],
     cooldowns: []
 }
@@ -90,6 +91,9 @@ const kanjiCardReducer = (draft: KanjiCardState, action: KanjiCardAction) => {
             }
 
             break;
+        case KanjiCardActionType.ReloadCards:
+            draft.cardData = newCardSet();
+            break;
         default:
             console.warn("Unhandled KanjiCardActionType");
             break;
@@ -100,6 +104,10 @@ export default function KanjiPairs() {
     // const testCard = { reading: "ビャク", kanji: "百" };
 
     const [state, dispatch] = useImmerReducer(kanjiCardReducer, initialTestState);
+
+    useEffect(() => {
+        dispatch({ type: KanjiCardActionType.ReloadCards, kanji: ""});
+    }, []);
 
     return (
         <KanjiCardGrid kanjiList={state.cardData} dispatch={dispatch} />
