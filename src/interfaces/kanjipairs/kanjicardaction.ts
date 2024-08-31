@@ -22,9 +22,11 @@ export const enum KanjiCardActionType {
     CooldownTriggered = "COOLDOWN_TRIGGERED",
     CooldownComplete = "COOLDOWN_COMPLETE",
     ReloadCards = "RELOAD_CARDS",
+    ToggleLevelFilter = "TOGGLE_LEVEL_FILTER"
 }
 
 export type KanjiCardAction = {
     type: KanjiCardActionType;
-    kanji: string;
+    value: string;
+    numberValue?: number
 }

@@ -37,19 +37,17 @@ export default function KanjiCard({ entry, dispatch }: Props) {
     let displayKanji = !entry.flipped || !entry.active;
 
     const handleCardClick = () => {
-        // if (!entry.flipped) {
-            dispatch({ type: KanjiCardActionType.CardClicked, kanji: entry.kanji });
-        // }
+        dispatch({ type: KanjiCardActionType.CardClicked, value: entry.kanji });
     };
 
     useEffect(() => {
         if (entry.triggerCooldown) {
             let flipbackTimer = setTimeout(
-                () => dispatch({ type: KanjiCardActionType.CooldownComplete, kanji: entry.kanji }),
+                () => dispatch({ type: KanjiCardActionType.CooldownComplete, value: entry.kanji }),
                 flipBackTimeout * 1000
             );
 
-            dispatch({ type: KanjiCardActionType.CooldownTriggered, kanji: entry.kanji });
+            dispatch({ type: KanjiCardActionType.CooldownTriggered, value: entry.kanji });
         }
     }, [entry.triggerCooldown, entry.kanji])
 
