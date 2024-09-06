@@ -18,7 +18,7 @@
 'use client'
 
 import { KanjiCardEntry } from "@/interfaces/kanjipairs/kanjicardentry";
-import { useEffect, useState, useRef, MutableRefObject, Dispatch } from "react";
+import { useEffect, useState, useRef, MutableRefObject, Dispatch, useCallback } from "react";
 import { KanjiCardAction, KanjiCardActionType } from "@/interfaces/kanjipairs/kanjicardaction"
 
 type Props = {
@@ -29,16 +29,20 @@ type Props = {
 const flipBackTimeout = 1;
 
 export default function KanjiCard({ entry, dispatch }: Props) {
-    const baseClass = "w-32 h-40 shadow-[5px_5px_10px] shadow-gray-800 dark:shadow-gray-400 text-white flex-col content-start";
+    const cardDisabled = entry.flipped || !entry.active;
+    const baseClass = "w-32 h-40 text-white flex-col content-start";
+    const shadowClass = "shadow-[5px_5px_10px] shadow-gray-800 dark:shadow-gray-400";
+    const clickedClass = cardDisabled ? "" : "active:bg-blue-700";
     const activeClass = "bg-blue-800";
     const inactiveClass = "bg-black";
+    const fullClass = `${baseClass} ${shadowClass} ${clickedClass} ${entry.active ? activeClass : inactiveClass}`;
 
     let displayReading = entry.flipped || !entry.active;
     let displayKanji = !entry.flipped || !entry.active;
 
-    const handleCardClick = () => {
+    const handleCardClick = useCallback(() => {
         dispatch({ type: KanjiCardActionType.CardClicked, value: entry.kanji });
-    };
+    }, [entry.kanji]);
 
     useEffect(() => {
         if (entry.triggerCooldown) {
@@ -52,9 +56,9 @@ export default function KanjiCard({ entry, dispatch }: Props) {
     }, [entry.triggerCooldown, entry.kanji])
 
     return (
-        <div className={`${baseClass} ${entry.active ? activeClass : inactiveClass}`} onClick={handleCardClick}>
-            <div className={`text-sm ${!displayReading ? 'invisible' : ''}`}>{entry.reading}</div>
-            <div className={`text-8xl text-center mt-[-1rem] ${!displayKanji ? 'invisible' : ''}`}>{entry.kanji}</div>
-        </div>
+        <button className={fullClass} onClick={handleCardClick} disabled={cardDisabled}>
+            <div className={`text-sm pl-2 text-left ${!displayReading ? 'invisible' : ''}`}>{entry.reading}</div>
+            <div className={`text-8xl text-center mt-[-1.2rem] ${!displayKanji ? 'invisible' : ''}`}>{entry.kanji}</div>
+        </button>
     );
 }

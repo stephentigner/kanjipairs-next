@@ -108,7 +108,7 @@ const kanjiCardReducer = (draft: KanjiCardState, action: KanjiCardAction) => {
 
             break;
         case KanjiCardActionType.ReloadCards:
-            draft.cardData = newCardSet();
+            draft.cardData = newCardSet(draft.gradeLevelFilters, draft.jlptLevelFilters);
             break;
         case KanjiCardActionType.ToggleLevelFilter:
             let levelFilters;
@@ -128,11 +128,9 @@ const kanjiCardReducer = (draft: KanjiCardState, action: KanjiCardAction) => {
             if (typeof action.numberValue === 'number') {
                 if (levelFilters.has(action.numberValue)) {
                     levelFilters.delete(action.numberValue);
-                    console.log(`removed ${action.value} level ${action.numberValue} filter`);
                 }
                 else {
                     levelFilters.add(action.numberValue);
-                    console.log(`added ${action.value} level ${action.numberValue} filter`);
                 }
             }
 

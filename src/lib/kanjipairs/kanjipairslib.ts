@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { KanjiDataset, KanjiReading } from "@/interfaces/kanjipairs/kanjidata"
+import { KanjiDataEntry, KanjiDataset, KanjiReading } from "@/interfaces/kanjipairs/kanjidata"
 import { kanjiData } from "./kanjidata";
 
 type ReadingsIndex = Map<string, Array<number>>;
@@ -127,7 +127,7 @@ const initializeDataset = (kanjiData: KanjiDataset) => {
     const { indexedReadings, readingNormalizations } = indexReadings(kanjiData);
     const prunedReadingIndex = pruneIndexedReadings(indexedReadings, 2);
 
-    return {indexedReadings, readingNormalizations, prunedReadingIndex};
+    return {readingNormalizations, prunedReadingIndex};
 }
 
 const createKanjiSet = (
@@ -232,12 +232,39 @@ const createKanjiSet = (
     return kanjiArray;
 }
 
-export const newCardSet = () => {
-    //TODO: Implement filters to limit set of kanji to be reviewed
-    const { indexedReadings, readingNormalizations, prunedReadingIndex} = initializeDataset(kanjiData);
-    const kanjiSet = createKanjiSet(indexedReadings, readingNormalizations, NUMBER_OF_CARDS, kanjiData.length);
+const filterKanjiSet = (baseKanjiData: KanjiDataset, gradeLevelFilters: Set<number>, jlptLevelFilters: Set<number>) => {
+    let filteredKanjiSet: KanjiDataset = [];
+    let hasFilters = gradeLevelFilters.size > 0 || jlptLevelFilters.size > 0;
+
+    if (hasFilters) {
+        filteredKanjiSet = baseKanjiData.filter((kanjiCharacter) => {
+            let gradeLevel = Number.parseInt(kanjiCharacter.miscMetaData.grade)
+            let jlptLevel = Number.parseInt(kanjiCharacter.miscMetaData.jlpt)
+
+            //Level not specifiied is an empty string in the data, which would be parsed as NaN
+            //However, that is treated internally in the filters as level 0, so convert any
+            //NaN to 0
+            gradeLevel = Number.isNaN(gradeLevel) ? 0 : gradeLevel;
+            jlptLevel = Number.isNaN(jlptLevel) ? 0 : jlptLevel;
+
+            const shouldInclude = gradeLevelFilters.has(gradeLevel) || jlptLevelFilters.has(jlptLevel);
+
+            return shouldInclude;
+        });
+    }
+    else {
+        filteredKanjiSet = baseKanjiData;
+    }
+
+    return filteredKanjiSet;
+}
+
+export const newCardSet = (gradeLevelFilters: Set<number>, jlptLevelFilters: Set<number>) => {
+    const filteredKanjiSet = filterKanjiSet(kanjiData, gradeLevelFilters, jlptLevelFilters);
+    const { readingNormalizations, prunedReadingIndex } = initializeDataset(filteredKanjiSet);
+    const kanjiSet = createKanjiSet(prunedReadingIndex, readingNormalizations, NUMBER_OF_CARDS, filteredKanjiSet.length);
     return kanjiSet.map((item) => {
-        const kanjiCharacter = kanjiData[item.kanjiIndex];
+        const kanjiCharacter = filteredKanjiSet[item.kanjiIndex];
         return {
             reading: item.selectedReading!, kanji: kanjiCharacter.literal,
             active: true, flipped: false, triggerCooldown: false

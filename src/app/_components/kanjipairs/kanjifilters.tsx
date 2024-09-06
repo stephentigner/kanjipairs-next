@@ -1,5 +1,6 @@
 import { KanjiCardAction, KanjiCardActionType } from "@/interfaces/kanjipairs/kanjicardaction";
 import { Dispatch, useCallback } from "react";
+import Button from "./button";
 
 type Props = {
     gradeLevelFilters: Set<number>;
@@ -33,13 +34,17 @@ export default function KanjiFilters({ gradeLevelFilters, jlptLevelFilters, disp
         dispatch({ type: KanjiCardActionType.ToggleLevelFilter, value: checkName, numberValue: level });
     }, []);
 
+    const handleNewSet = useCallback(() => {
+        dispatch({ type: KanjiCardActionType.ReloadCards, value: "" });
+    }, []);
+
     return (
         <div>
             <div className="">
                 <div className="mb-5">
-                    These filters are not mutually exclusive. <br />
-                    It's possible to select a filter set that has no kanji. <br />
-                    If you get no cards after hitting "New Set", try different filters. <br />
+                    These filters are additive. <br />
+                    The more boxes you select, the larger the filtered set. <br />
+                    However, if you want a fully unfiltered set it's easiest to leave them all unchecked. <br />
                 </div>
             </div>
 
@@ -64,8 +69,8 @@ export default function KanjiFilters({ gradeLevelFilters, jlptLevelFilters, disp
                     ))}
                 </div>
                 <div className="my-5">
-                    <input type="button" value="New Set" className="mr-5" />
-                    <input type="button" value="Shuffle" className="mr-5" />
+                    <Button value="New Set" onClick={handleNewSet} />
+                    <Button value="Shuffle" />
                 </div>
             </div>
             <div className="">
