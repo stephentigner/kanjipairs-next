@@ -82,7 +82,7 @@ export default function KanjiFilters({ gradeLevelFilters, jlptLevelFilters, disp
                     created.) <br />
                     If none are checked, no filtering by JLPT level will be done. <br />
                 </div>
-                <div className="my-5" kanjipairs-control="jlpt-filter">
+                <div className="my-5">
                     {jlptLevels.map(({ level, label }) => (
                         <div key={label}>
                             <input type="checkbox" id={`jlpt-level-${level}`}

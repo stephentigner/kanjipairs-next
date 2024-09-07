@@ -25,6 +25,7 @@ import { newCardSet, normalizeReading } from "@/lib/kanjipairs/kanjipairslib";
 import { useEffect } from "react";
 import KanjiFilters from "./kanjifilters";
 import { enableMapSet } from "immer";
+import { loadFilterSet, saveFilterSet } from "@/lib/kanjipairs/kanjipairsstorage";
 
 type KanjiCardState = {
     cardData: Array<KanjiCardEntry>;
@@ -32,6 +33,7 @@ type KanjiCardState = {
     cooldowns: Array<KanjiCardEntry>;
     gradeLevelFilters: Set<number>;
     jlptLevelFilters: Set<number>;
+    initialLoadComplete: boolean;
 }
 
 const initialState: KanjiCardState = {
@@ -40,6 +42,7 @@ const initialState: KanjiCardState = {
     cooldowns: [],
     gradeLevelFilters: new Set(),
     jlptLevelFilters: new Set(),
+    initialLoadComplete: false,
 }
 
 const kanjiCardReducer = (draft: KanjiCardState, action: KanjiCardAction) => {
@@ -108,7 +111,10 @@ const kanjiCardReducer = (draft: KanjiCardState, action: KanjiCardAction) => {
 
             break;
         case KanjiCardActionType.ReloadCards:
+            draft.gradeLevelFilters = loadFilterSet("grade-level");
+            draft.jlptLevelFilters = loadFilterSet("jlpt-level");
             draft.cardData = newCardSet(draft.gradeLevelFilters, draft.jlptLevelFilters);
+            draft.initialLoadComplete = true;
             break;
         case KanjiCardActionType.ToggleLevelFilter:
             let levelFilters;
@@ -134,6 +140,8 @@ const kanjiCardReducer = (draft: KanjiCardState, action: KanjiCardAction) => {
                 }
             }
 
+            saveFilterSet(action.value, levelFilters);
+
             break;
         default:
             console.warn("Unhandled KanjiCardActionType");
@@ -149,10 +157,17 @@ export default function KanjiPairs() {
         dispatch({ type: KanjiCardActionType.ReloadCards, value: ""});
     }, []);
 
-    return (
-        <>
-            <KanjiCardGrid kanjiList={state.cardData} dispatch={dispatch} />
-            <KanjiFilters gradeLevelFilters={state.gradeLevelFilters} jlptLevelFilters={state.jlptLevelFilters} dispatch={dispatch} />
-        </>
-    )
+    if (state.initialLoadComplete) {
+        return (
+            <>
+                <KanjiCardGrid kanjiList={state.cardData} dispatch={dispatch} />
+                <KanjiFilters gradeLevelFilters={state.gradeLevelFilters} jlptLevelFilters={state.jlptLevelFilters} dispatch={dispatch} />
+            </>
+        );
+    }
+    else {
+        return (
+            <p className="animate-bounce">Loading game...</p>
+        );
+    }
 }
