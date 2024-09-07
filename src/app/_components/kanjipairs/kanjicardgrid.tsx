@@ -38,7 +38,6 @@ export default function KanjiCardGrid({ kanjiList, dispatch }: Props) {
         <section className={composedClass}>
             {kanjiList.map(entry => (
                 <KanjiCard entry={entry} dispatch={dispatch} key={entry.kanji} />
-                // <></>
             ))}
         </section>
     )

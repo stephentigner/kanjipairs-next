@@ -22,10 +22,11 @@ import { useImmerReducer } from "use-immer";
 import { KanjiCardEntry } from "@/interfaces/kanjipairs/kanjicardentry";
 import KanjiCardGrid from "./kanjicardgrid";
 import { newCardSet, normalizeReading } from "@/lib/kanjipairs/kanjipairslib";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import KanjiFilters from "./kanjifilters";
 import { enableMapSet } from "immer";
 import { loadFilterSet, saveFilterSet } from "@/lib/kanjipairs/kanjipairsstorage";
+import Button from "./button";
 
 type KanjiCardState = {
     cardData: Array<KanjiCardEntry>;
@@ -34,6 +35,7 @@ type KanjiCardState = {
     gradeLevelFilters: Set<number>;
     jlptLevelFilters: Set<number>;
     initialLoadComplete: boolean;
+    showFilters: boolean;
 }
 
 const initialState: KanjiCardState = {
@@ -43,11 +45,15 @@ const initialState: KanjiCardState = {
     gradeLevelFilters: new Set(),
     jlptLevelFilters: new Set(),
     initialLoadComplete: false,
+    showFilters: false,
 }
 
 const kanjiCardReducer = (draft: KanjiCardState, action: KanjiCardAction) => {
     switch (action.type) {
         case KanjiCardActionType.CardClicked:
+            //hide the filters if they are showing
+            draft.showFilters = false;
+
             const entry = draft.cardData.find(entry => entry.kanji == action.value);
 
             //only continue to process click if card is active, is not currently flipped,
@@ -143,6 +149,12 @@ const kanjiCardReducer = (draft: KanjiCardState, action: KanjiCardAction) => {
             saveFilterSet(action.value, levelFilters);
 
             break;
+        case KanjiCardActionType.ShowFilters:
+            draft.showFilters = true;
+            break;
+        case KanjiCardActionType.HideFilters:
+            draft.showFilters = false;
+            break;
         default:
             console.warn("Unhandled KanjiCardActionType");
             break;
@@ -152,6 +164,14 @@ const kanjiCardReducer = (draft: KanjiCardState, action: KanjiCardAction) => {
 export default function KanjiPairs() {
     const [state, dispatch] = useImmerReducer(kanjiCardReducer, initialState);
 
+    const handleFilterDisplay = useCallback(() => {
+        dispatch({ type: KanjiCardActionType.ShowFilters, value: "" });
+    }, []);
+
+    const handleNewSet = useCallback(() => {
+        dispatch({ type: KanjiCardActionType.ReloadCards, value: "" });
+    }, []);
+
     useEffect(() => {
         enableMapSet();
         dispatch({ type: KanjiCardActionType.ReloadCards, value: ""});
@@ -159,10 +179,14 @@ export default function KanjiPairs() {
 
     if (state.initialLoadComplete) {
         return (
-            <>
+            <div className="relative">
                 <KanjiCardGrid kanjiList={state.cardData} dispatch={dispatch} />
-                <KanjiFilters gradeLevelFilters={state.gradeLevelFilters} jlptLevelFilters={state.jlptLevelFilters} dispatch={dispatch} />
-            </>
+                <Button label="Filters" onClick={handleFilterDisplay} />
+                <Button label="New Set" onClick={handleNewSet} />
+                <Button label="Shuffle" />
+                <KanjiFilters gradeLevelFilters={state.gradeLevelFilters} jlptLevelFilters={state.jlptLevelFilters}
+                showFilters={state.showFilters} dispatch={dispatch}  />
+            </div>
         );
     }
     else {
