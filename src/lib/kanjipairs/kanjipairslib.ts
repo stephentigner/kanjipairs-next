@@ -17,6 +17,7 @@
 
 import { KanjiDataEntry, KanjiDataset, KanjiReading } from "@/interfaces/kanjipairs/kanjidata"
 import { kanjiData } from "./kanjidata";
+import { KanjiCardEntry } from "@/interfaces/kanjipairs/kanjicardentry";
 
 type ReadingsIndex = Map<string, Array<number>>;
 type NormalizationsIndex = Map<number, Map<string, string>>;
@@ -28,7 +29,7 @@ type KanjiItem = {
 const NUMBER_OF_CARDS = 40;
 
 //This normalizes all katakana to hiragana; if the string has hiragana, that remains untouched
-export const normalizeReading = (readingToNormalize: string) => {
+const normalizeReading = (readingToNormalize: string) => {
     var hiraganaString = readingToNormalize.replace(/[ァ-ン]/g, function (s) {
         return String.fromCharCode(s.charCodeAt(0) - 0x60);
     });
@@ -259,7 +260,7 @@ const filterKanjiSet = (baseKanjiData: KanjiDataset, gradeLevelFilters: Set<numb
     return filteredKanjiSet;
 }
 
-export const newCardSet = (gradeLevelFilters: Set<number>, jlptLevelFilters: Set<number>) => {
+const newCardSet = (gradeLevelFilters: Set<number>, jlptLevelFilters: Set<number>) => {
     const filteredKanjiSet = filterKanjiSet(kanjiData, gradeLevelFilters, jlptLevelFilters);
     const { readingNormalizations, prunedReadingIndex } = initializeDataset(filteredKanjiSet);
     const kanjiSet = createKanjiSet(prunedReadingIndex, readingNormalizations, NUMBER_OF_CARDS, filteredKanjiSet.length);
@@ -271,3 +272,18 @@ export const newCardSet = (gradeLevelFilters: Set<number>, jlptLevelFilters: Set
         };
     });
 }
+
+const shuffleCards = (cardData: Array<KanjiCardEntry>) => {
+    const shuffledArray = [...cardData];
+
+    for (var currIndex = shuffledArray.length - 1; currIndex > 0; currIndex--) {
+        var swapIndex = Math.floor(Math.random() * (currIndex + 1));
+
+        var temp = shuffledArray[currIndex];
+        shuffledArray[currIndex] = shuffledArray[swapIndex];
+        shuffledArray[swapIndex] = temp;
+    }
+    return shuffledArray;
+}
+
+export { normalizeReading, newCardSet, shuffleCards };

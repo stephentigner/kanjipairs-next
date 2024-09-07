@@ -25,6 +25,7 @@ export const enum KanjiCardActionType {
     ToggleLevelFilter = "TOGGLE_LEVEL_FILTER",
     ShowFilters = "SHOW_FILTERS",
     HideFilters = "HIDE_FILTERS",
+    ShuffleCards = "SHUFFLE_CARDS",
 }
 
 export type KanjiCardAction = {

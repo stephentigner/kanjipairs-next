@@ -53,9 +53,13 @@ export default function KanjiFilters({ gradeLevelFilters, jlptLevelFilters, show
         dispatch({ type: KanjiCardActionType.ReloadCards, value: "" });
     }, []);
 
+    const handleShuffle = useCallback(() => {
+        dispatch({ type: KanjiCardActionType.ShuffleCards, value: "" });
+    }, []);
+
     return (
         <div className={`absolute top-0 left-0 dark:bg-slate-900/50 bg-white/50 w-full h-full ${displayClass}`} onClick={handleFilterHide}>
-            <div className={fullClass}>
+            <div className={fullClass} onClick={(e) => e.stopPropagation()}>
                 <div className="text-right">
                     <Button label="X" onClick={handleFilterHide} className="mr-2" />
                 </div>
@@ -90,7 +94,7 @@ export default function KanjiFilters({ gradeLevelFilters, jlptLevelFilters, show
                     </div>
                     <div className="my-5">
                         <Button label="New Set" onClick={handleNewSet} />
-                        <Button label="Shuffle" />
+                        <Button label="Shuffle" onClick={handleShuffle} />
                     </div>
                 </div>
                 <div className="">
