@@ -22,10 +22,11 @@ import { Dispatch } from "react";
 
 type Props = {
     kanjiList: Array<KanjiCardEntry>;
+    flipBackTimeout: number,
     dispatch: Dispatch<KanjiCardAction>;
 }
 
-export default function KanjiCardGrid({ kanjiList, dispatch }: Props) {
+export default function KanjiCardGrid({ kanjiList, flipBackTimeout, dispatch }: Props) {
     const baseclass = "grid-cols-2 max-w-[290px] mb-8 gap-y-5"; /* below 640px */
     const smclass = "sm:grid-cols-4 sm:max-w-[580px]"; /* min-width 640px */
     const mdclass = "md:grid-cols-5 md:max-w-[715px]"; /* min-width 768px */
@@ -39,7 +40,7 @@ export default function KanjiCardGrid({ kanjiList, dispatch }: Props) {
             {kanjiList.map(entry => (
                 //If we have less than the requested number of cards, then we'll have some
                 //undefined entries in the array; only try to render an entry if its a valid object
-                entry && <KanjiCard entry={entry} dispatch={dispatch} key={entry.kanji} />
+                entry && <KanjiCard entry={entry} flipBackTimeout={flipBackTimeout} dispatch={dispatch} key={entry.kanji} />
             ))}
         </section>
     )

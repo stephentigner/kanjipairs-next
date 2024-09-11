@@ -23,12 +23,11 @@ import { KanjiCardAction, KanjiCardActionType } from "@/interfaces/kanjipairs/ka
 
 type Props = {
     entry: KanjiCardEntry;
+    flipBackTimeout: number,
     dispatch: Dispatch<KanjiCardAction>;
 }
 
-const flipBackTimeout = 1;
-
-export default function KanjiCard({ entry, dispatch }: Props) {
+export default function KanjiCard({ entry, flipBackTimeout, dispatch }: Props) {
     const cardDisabled = entry.flipped || !entry.active;
     const baseClass = "w-32 h-40 text-white flex-col content-start";
     const shadowClass = "shadow-[5px_5px_10px] shadow-gray-800 dark:shadow-gray-400";
@@ -53,7 +52,7 @@ export default function KanjiCard({ entry, dispatch }: Props) {
 
             dispatch({ type: KanjiCardActionType.CooldownTriggered, value: entry.kanji });
         }
-    }, [entry.triggerCooldown, entry.kanji])
+    }, [entry.triggerCooldown, entry.kanji, flipBackTimeout])
 
     return (
         <button className={fullClass} onClick={handleCardClick} disabled={cardDisabled}>

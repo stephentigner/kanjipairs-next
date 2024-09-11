@@ -17,6 +17,7 @@
 
 'use client'
 
+import { flipBackTimerOptions } from "@/interfaces/kanjipairs/flipBackTimerOptions";
 import { DEFAULT_SHUFFLE_OPTION, KanjiCardShuffleOption, parseShuffleOption } from "@/interfaces/kanjipairs/kanjicardshuffleoption";
 
 const globalKeyPrefix = "kanjipairs";
@@ -47,6 +48,7 @@ const getSetting = (settingName: string) => {
 
 const filterSettingKey = (filterName: string) => `${globalKeyPrefix}-filter:${filterName}`;
 const shuffleSettingKey = () => `${globalKeyPrefix}-shuffle`;
+const flipBackSettingKey = () => `${globalKeyPrefix}-flipBackTimeout`;
 
 const saveFilterSet = (filterName: string, filterArray: Set<number>) => {
     if (localStorageSupported()) {
@@ -95,4 +97,29 @@ const loadShuffleSetting = () => {
     }
 }
 
-export { saveFilterSet, loadFilterSet, saveShuffleSetting, loadShuffleSetting };
+const saveFlipBackTimeout = (flipBackTimeout: number) => {
+    if (localStorageSupported()) {
+        const settingKey = flipBackSettingKey();
+        saveSetting(settingKey, flipBackTimeout.toString());
+    }
+}
+
+const loadFlipBackTimeout = () => {
+    if (localStorageSupported()) {
+        const settingKey = flipBackSettingKey();
+        const savedValue = getSetting(settingKey);
+
+        if (savedValue) {
+            const parsedValue = Number.parseFloat(savedValue);
+            return Number.isNaN(parsedValue) ? flipBackTimerOptions.DEFAULT : parsedValue;
+        }
+        else {
+            return flipBackTimerOptions.DEFAULT;
+        }
+    }
+    else {
+        return flipBackTimerOptions.DEFAULT;
+    }
+}
+
+export { saveFilterSet, loadFilterSet, saveShuffleSetting, loadShuffleSetting, saveFlipBackTimeout, loadFlipBackTimeout };

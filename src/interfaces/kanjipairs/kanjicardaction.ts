@@ -30,6 +30,7 @@ export const enum KanjiCardActionType {
     InitialLoad = "INITIAL_LOAD",
     ShowSettings = "SHOW_SETTINGS",
     HideSettings = "HIDE_SETTINGS",
+    SetFlipBackTimeout = "SET_FLIP_BACK_TIMEOUT",
 }
 
 export type KanjiCardAction = {
