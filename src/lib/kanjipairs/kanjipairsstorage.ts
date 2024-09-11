@@ -17,6 +17,8 @@
 
 'use client'
 
+import { DEFAULT_SHUFFLE_OPTION, KanjiCardShuffleOption, parseShuffleOption } from "@/interfaces/kanjipairs/kanjicardshuffleoption";
+
 const globalKeyPrefix = "kanjipairs";
 
 const localStorageSupported = () => {
@@ -44,6 +46,7 @@ const getSetting = (settingName: string) => {
 }
 
 const filterSettingKey = (filterName: string) => `${globalKeyPrefix}-filter:${filterName}`;
+const shuffleSettingKey = () => `${globalKeyPrefix}-shuffle`;
 
 const saveFilterSet = (filterName: string, filterArray: Set<number>) => {
     if (localStorageSupported()) {
@@ -68,4 +71,28 @@ const loadFilterSet = (filterName: string) => {
     return new Set<number>();
 }
 
-export { saveFilterSet, loadFilterSet };
+const saveShuffleSetting = (shuffleSetting: KanjiCardShuffleOption) => {
+    if (localStorageSupported()) {
+        const settingKey = shuffleSettingKey();
+        saveSetting(settingKey, shuffleSetting);
+    }
+}
+
+const loadShuffleSetting = () => {
+    if (localStorageSupported()) {
+        const settingKey = shuffleSettingKey();
+        const savedValue = getSetting(settingKey);
+
+        if (savedValue) {
+            return parseShuffleOption(savedValue) ?? DEFAULT_SHUFFLE_OPTION;
+        }
+        else {
+            return DEFAULT_SHUFFLE_OPTION;
+        }
+    }
+    else {
+        return DEFAULT_SHUFFLE_OPTION;
+    }
+}
+
+export { saveFilterSet, loadFilterSet, saveShuffleSetting, loadShuffleSetting };

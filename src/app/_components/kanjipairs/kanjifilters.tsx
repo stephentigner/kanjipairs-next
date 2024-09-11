@@ -1,6 +1,7 @@
 import { KanjiCardAction, KanjiCardActionType } from "@/interfaces/kanjipairs/kanjicardaction";
 import { Dispatch, useCallback, useState } from "react";
 import Button from "./button";
+import { KanjiLevelFilter } from "@/lib/kanjipairs/kanjilevelfilter";
 
 type Props = {
     gradeLevelFilters: Set<number>;
@@ -37,10 +38,6 @@ export default function KanjiFilters({ gradeLevelFilters, jlptLevelFilters, show
     const fullClass = `${baseClass} ${shadowClass} ${displayClass}`;
     const explainClass = "mb-5 pr-5"
 
-    const handleFilterDisplay = useCallback(() => {
-        dispatch({ type: KanjiCardActionType.ShowFilters, value: "" });
-    }, []);
-
     const handleFilterHide = useCallback(() => {
         dispatch({ type: KanjiCardActionType.HideFilters, value: "" });
     }, []);
@@ -61,63 +58,68 @@ export default function KanjiFilters({ gradeLevelFilters, jlptLevelFilters, show
         <div className={`absolute top-0 left-0 dark:bg-slate-900/50 bg-white/50 w-full h-full ${displayClass}`} onClick={handleFilterHide}>
             <div className={fullClass} onClick={(e) => e.stopPropagation()}>
                 <div className="text-right">
-                    <Button label="X" onClick={handleFilterHide} className="mr-2" />
+                    <Button label="X" onClick={handleFilterHide} className="mr-1" />
                 </div>
-                <div className="">
-                    <div className={explainClass}>
-                        These filters are additive. <br />
-                        The more boxes you select, the larger the filtered set. <br />
-                        However, if you want a fully unfiltered set it's easiest <br />
-                        to leave them all unchecked. <br />
+                <div className="px-5 pb-5">
+                    <div className="">
+                        <div className={explainClass}>
+                            These filters are additive. <br />
+                            The more boxes you select, the larger the filtered set. <br />
+                            However, if you want a fully unfiltered set it's easiest <br />
+                            to leave them all unchecked. <br />
+                        </div>
                     </div>
-                </div>
 
-                <div className="">
-                    <div className={explainClass}>
-                        Check one or more grades to filter the next set by. <br />
-                        These are (mostly) the grade/year in school in which <br />
-                        the kanji is taught in the Japanese educational system. <br />
-                        If none are checked, no filtering by grade level will be done. <br />
+                    <div className="">
+                        <div className={explainClass}>
+                            Check one or more grades to filter the next set by. <br />
+                            These are (mostly) the grade/year in school in which <br />
+                            the kanji is taught in the Japanese educational system. <br />
+                            If none are checked, no filtering by grade level will be done. <br />
+                        </div>
+                        <div className="my-5">
+                            {gradeLevels.map(({level, label}) => (
+                                <div key={label}>
+                                    <input type="checkbox" id={`${KanjiLevelFilter.GRADE}-${level}`}
+                                    name={KanjiLevelFilter.GRADE} value={level}
+                                    checked={gradeLevelFilters.has(level)}
+                                    onChange={
+                                        () => handleCheck(KanjiLevelFilter.GRADE, level)
+                                    } />
+                                    <label className="pl-5" htmlFor={`${KanjiLevelFilter.GRADE}-${level}`}>{label}</label>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="my-5">
+                            <Button label="New Set" onClick={handleNewSet} />
+                            <Button label="Shuffle" onClick={handleShuffle} />
+                        </div>
                     </div>
-                    <div className="my-5">
-                        {gradeLevels.map(({level, label}) => (
-                            <div key={label}>
-                                <input type="checkbox" id={`grade-level-${level}`}
-                                name="grade-level" value={level}
-                                checked={gradeLevelFilters.has(level)}
-                                onChange={
-                                    () => handleCheck("grade-level", level)
-                                } />
-                                <label className="pl-5" htmlFor={`grade-level-${level}`}>{label}</label>
-                            </div>
-                        ))}
+                    <div className="">
+                        <div className={explainClass}>
+                            Check one or more JLPT levels to filter the next set by. <br />
+                            These are the original JLPT levels, not the new "N" levels. <br />
+                            There are no publicly available official lists of kanji for <br />
+                            the new levels. (At least not at the time this dataset was <br />
+                            created.) <br />
+                            If none are checked, no filtering by JLPT level will be done. <br />
+                        </div>
+                        <div className="my-5">
+                            {jlptLevels.map(({ level, label }) => (
+                                <div key={label}>
+                                    <input type="checkbox" id={`${KanjiLevelFilter.JLPT}-${level}`}
+                                    name={KanjiLevelFilter.JLPT} value={level}
+                                    checked={jlptLevelFilters.has(level)}
+                                    onChange={
+                                        () => handleCheck(KanjiLevelFilter.JLPT, level)
+                                    } />
+                                    <label className="pl-5" htmlFor={`${KanjiLevelFilter.JLPT}-${level}`}>{label}</label>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                    <div className="my-5">
-                        <Button label="New Set" onClick={handleNewSet} />
-                        <Button label="Shuffle" onClick={handleShuffle} />
-                    </div>
-                </div>
-                <div className="">
-                    <div className={explainClass}>
-                        Check one or more JLPT levels to filter the next set by. <br />
-                        These are the original JLPT levels, not the new "N" levels. <br />
-                        There are no publicly available official lists of kanji for <br />
-                        the new levels. (At least not at the time this dataset was <br />
-                        created.) <br />
-                        If none are checked, no filtering by JLPT level will be done. <br />
-                    </div>
-                    <div className="my-5">
-                        {jlptLevels.map(({ level, label }) => (
-                            <div key={label}>
-                                <input type="checkbox" id={`jlpt-level-${level}`}
-                                name="jlpt-level" value={level}
-                                checked={jlptLevelFilters.has(level)}
-                                onChange={
-                                    () => handleCheck("jlpt-level", level)
-                                } />
-                                <label className="pl-5" htmlFor={`jlpt-level-${level}`}>{label}</label>
-                            </div>
-                        ))}
+                    <div className="text-right">
+                        <Button label="Close" onClick={handleFilterHide} className="mr-1" />
                     </div>
                 </div>
             </div>

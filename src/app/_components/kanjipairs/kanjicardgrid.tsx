@@ -37,7 +37,9 @@ export default function KanjiCardGrid({ kanjiList, dispatch }: Props) {
     return (
         <section className={composedClass}>
             {kanjiList.map(entry => (
-                <KanjiCard entry={entry} dispatch={dispatch} key={entry.kanji} />
+                //If we have less than the requested number of cards, then we'll have some
+                //undefined entries in the array; only try to render an entry if its a valid object
+                entry && <KanjiCard entry={entry} dispatch={dispatch} key={entry.kanji} />
             ))}
         </section>
     )

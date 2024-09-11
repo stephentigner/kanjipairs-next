@@ -26,6 +26,10 @@ export const enum KanjiCardActionType {
     ShowFilters = "SHOW_FILTERS",
     HideFilters = "HIDE_FILTERS",
     ShuffleCards = "SHUFFLE_CARDS",
+    ChangeShuffleSetting = "CHANGE_SHUFFLE_SETTING",
+    InitialLoad = "INITIAL_LOAD",
+    ShowSettings = "SHOW_SETTINGS",
+    HideSettings = "HIDE_SETTINGS",
 }
 
 export type KanjiCardAction = {
